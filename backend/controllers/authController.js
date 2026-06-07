@@ -67,8 +67,13 @@ message:"Email and password required"
 });
 }
 
+const normalizedEmail = email.trim().toLowerCase();
+const legacyPayrollEmail = normalizedEmail.endsWith("@gmail.com")
+? normalizedEmail.replace("@gmail.com", "@payroll")
+: "";
+
 const user = await User.findOne({
-email: email.trim().toLowerCase()
+email: legacyPayrollEmail ? { $in: [normalizedEmail, legacyPayrollEmail] } : normalizedEmail
 })
 .select("+password")
 .populate("employee");
@@ -87,6 +92,12 @@ return res.status(401).json({
 message:"Invalid credentials"
 });
 }
+
+if(user.email !== normalizedEmail && legacyPayrollEmail && user.email === legacyPayrollEmail){
+user.email = normalizedEmail;
+await user.save();
+}
+
 return res.json({
 token:signToken(user),
 user:sanitizeUser(user)

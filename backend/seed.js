@@ -44,7 +44,7 @@ const seed = async () => {
 
       name: "Sonal",
 
-      email: "sonal@payroll",
+      email: "sonal@gmail.com",
 
       password: "Sonal@12345",
 
@@ -64,7 +64,7 @@ const seed = async () => {
 
       {
         name:"Rahul",
-        email:"rahul@payroll",
+        email:"rahul@gmail.com",
         department:"Engineering",
         designation:"Frontend Developer",
         salary:78000,
@@ -74,7 +74,7 @@ const seed = async () => {
 
       {
         name:"Sourav",
-        email:"sourav@payroll",
+        email:"sourav@gmail.com",
         department:"Finance",
         designation:"Payroll Analyst",
         salary:72000,
@@ -84,7 +84,7 @@ const seed = async () => {
 
       {
         name:"Asha",
-        email:"asha@payroll",
+        email:"asha@gmail.com",
         department:"Human Resources",
         designation:"HR Executive",
         salary:64000,
@@ -206,12 +206,12 @@ const seed = async () => {
 
 
     console.log(
-      "Admin login: sonal@payroll / Sonal@12345"
+      "Admin login: sonal@gmail.com / Sonal@12345"
     );
 
 
     console.log(
-      "Employee login: rahul@payroll / Employee@123"
+      "Employee login: sourav@gmail.com / Employee@123"
     );
 
 
