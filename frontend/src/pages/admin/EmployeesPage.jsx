@@ -2,6 +2,7 @@ import { Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../../api/axios";
+import { resolveBackendUrl } from "../../config/urls";
 import { currency } from "../../utils/formatters";
 
 const emptyForm = { name: "", email: "", phone: "", department: "", designation: "", salary: "", address: "", password: "" };
@@ -40,7 +41,7 @@ const EmployeesPage = () => {
   const edit = (employee) => {
     setEditingId(employee._id);
     setForm({ ...emptyForm, ...employee, password: "" });
-    setPreview(employee.profileImage ? `http://127.0.0.1:5000${employee.profileImage}` : "");
+    setPreview(employee.profileImage ? resolveBackendUrl(employee.profileImage) : "");
   };
 
   const remove = async (id) => {

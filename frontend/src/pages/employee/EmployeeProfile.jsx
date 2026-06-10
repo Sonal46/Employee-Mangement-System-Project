@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../../api/axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { resolveBackendUrl } from "../../config/urls";
 import { currency } from "../../utils/formatters";
-
-const apiOrigin = "http://127.0.0.1:5000";
 
 const EmployeeProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -16,7 +15,7 @@ const EmployeeProfile = () => {
     api.get("/employees/me/profile").then(({ data }) => {
       setProfile(data);
       setForm({ name: data.name || "", phone: data.phone || "", address: data.address || "" });
-      setPreview(data.profileImage ? `${apiOrigin}${data.profileImage}` : "");
+      setPreview(data.profileImage ? resolveBackendUrl(data.profileImage) : "");
     });
   }, []);
 

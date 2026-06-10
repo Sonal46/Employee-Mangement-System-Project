@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../../api/axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { resolveBackendUrl } from "../../config/urls";
 
 const SettingsPage = () => {
   const [loading, setLoading] = useState(true);
@@ -67,7 +68,7 @@ const SettingsPage = () => {
               if (file) setLogoPreview(URL.createObjectURL(file));
             }} />
           </label>
-          {logoPreview && <img src={logoPreview.startsWith("/uploads") ? `http://127.0.0.1:5000${logoPreview}` : logoPreview} alt="Company logo preview" className="h-20 w-20 rounded-md border border-slate-200 object-cover" />}
+          {logoPreview && <img src={logoPreview.startsWith("/uploads") ? resolveBackendUrl(logoPreview) : logoPreview} alt="Company logo preview" className="h-20 w-20 rounded-md border border-slate-200 object-cover" />}
         </div>
         <button className="mt-4 inline-flex items-center gap-2 rounded-md bg-mint px-4 py-2 font-semibold text-white"><Save size={16} />Save Company</button>
       </form>
