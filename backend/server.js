@@ -22,24 +22,72 @@ dotenv.config();
 const app = express();
 
 const port = process.env.PORT || 5000;
+const localOrigins = new Set([
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+const splitOrigins = (value) =>
+  (value || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const wildcardToRegExp = (pattern) => {
+  const escaped = pattern
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\\\*/g, ".*");
+
+  return new RegExp(`^${escaped}$`);
+};
+
+const configuredOrigins = [
+  ...splitOrigins(process.env.CLIENT_URL),
+  ...splitOrigins(process.env.CORS_ORIGIN),
+  ...splitOrigins(process.env.VERCEL_URL).map((origin) => `https://${origin}`),
+  ...splitOrigins(process.env.VERCEL_BRANCH_URL).map((origin) => `https://${origin}`),
+  ...splitOrigins(process.env.VERCEL_PROJECT_PRODUCTION_URL).map((origin) => `https://${origin}`),
+];
+
+const allowedOriginPatterns = [
+  ...configuredOrigins.map((origin) =>
+    origin.includes("*") ? wildcardToRegExp(origin) : origin
+  ),
+  /^https:\/\/.*\.vercel\.app$/i,
+];
 
 
 // CORS FIX
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "https://employee-management-system-project.vercel.app",
-    ],
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (localOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      if (
+        allowedOriginPatterns.some((pattern) =>
+          pattern instanceof RegExp ? pattern.test(origin) : pattern === origin
+        )
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
     methods: [
       "GET",
       "POST",
       "PUT",
       "PATCH",
       "DELETE",
+      "OPTIONS",
     ],
-    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
