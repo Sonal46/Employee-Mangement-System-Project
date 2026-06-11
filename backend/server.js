@@ -4,6 +4,7 @@ import express from "express";
 import morgan from "morgan";
 
 import { connectDB } from "./config/db.js";
+import { splitEnvList } from "./utils/url.js";
 
 import attendanceRoutes from "./routes/attendanceRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -15,23 +16,11 @@ import payrollRoutes from "./routes/payrollRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 
-
 dotenv.config();
-
 
 const app = express();
 
 const port = process.env.PORT || 5000;
-const localOrigins = new Set([
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-]);
-
-const splitOrigins = (value) =>
-  (value || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
 
 const wildcardToRegExp = (pattern) => {
   const escaped = pattern
@@ -42,11 +31,12 @@ const wildcardToRegExp = (pattern) => {
 };
 
 const configuredOrigins = [
-  ...splitOrigins(process.env.CLIENT_URL),
-  ...splitOrigins(process.env.CORS_ORIGIN),
-  ...splitOrigins(process.env.VERCEL_URL).map((origin) => `https://${origin}`),
-  ...splitOrigins(process.env.VERCEL_BRANCH_URL).map((origin) => `https://${origin}`),
-  ...splitOrigins(process.env.VERCEL_PROJECT_PRODUCTION_URL).map((origin) => `https://${origin}`),
+  ...splitEnvList(process.env.FRONTEND_ORIGINS),
+  ...splitEnvList(process.env.CLIENT_URL),
+  ...splitEnvList(process.env.CORS_ORIGIN),
+  ...splitEnvList(process.env.VERCEL_URL).map((origin) => `https://${origin}`),
+  ...splitEnvList(process.env.VERCEL_BRANCH_URL).map((origin) => `https://${origin}`),
+  ...splitEnvList(process.env.VERCEL_PROJECT_PRODUCTION_URL).map((origin) => `https://${origin}`),
 ];
 
 const allowedOriginPatterns = [
@@ -62,10 +52,6 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) {
-        return callback(null, true);
-      }
-
-      if (localOrigins.has(origin)) {
         return callback(null, true);
       }
 
