@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import Employee from "../models/Employee.js";
 import User from "../models/User.js";
 const signToken = (user) => {
   return jwt.sign(
@@ -40,15 +41,30 @@ message:"Email already exists"
 });
 }
 
+let employee = null;
+
+if ((role || "employee") === "employee") {
+employee = await Employee.create({
+name: name.trim(),
+email: email.trim().toLowerCase(),
+department: req.body.department || "General",
+designation: req.body.designation || "Employee",
+salary: Number(req.body.salary ?? 0),
+phone: req.body.phone || "",
+address: req.body.address || "",
+});
+}
+
 const user = await User.create({
 name,
 email: email.trim().toLowerCase(),
 password: password.trim(),
-role: role || "employee"
+role: role || "employee",
+employee: employee?._id
 });
 return res.status(201).json({
 message:"Account created successfully",
-user:sanitizeUser(user)
+user:sanitizeUser(await user.populate("employee"))
 });
 }catch(error){
 console.log(error);

@@ -1,5 +1,19 @@
 import User from "../models/User.js";
 import Setting from "../models/Setting.js";
+import { toPublicUrl } from "../utils/url.js";
+
+const serializeSettings = (settings) => {
+  if (!settings) {
+    return settings;
+  }
+
+  const data = settings.toObject ? settings.toObject() : settings;
+
+  return {
+    ...data,
+    logo: toPublicUrl(data.logo),
+  };
+};
 
 const getSettingsDocument = async () => {
   let settings = await Setting.findOne();
@@ -9,7 +23,7 @@ const getSettingsDocument = async () => {
 
 export const getSettings = async (req, res) => {
   const settings = await getSettingsDocument();
-  res.json({ settings, admin: { id: req.user._id, name: req.user.name, email: req.user.email } });
+  res.json({ settings: serializeSettings(settings), admin: { id: req.user._id, name: req.user.name, email: req.user.email } });
 };
 
 export const updateAdminProfile = async (req, res) => {
@@ -31,5 +45,5 @@ export const updateCompanySettings = async (req, res) => {
     ...(req.file ? { logo: `/uploads/${req.file.filename}` } : {}),
   };
   const settings = await Setting.findOneAndUpdate({}, payload, { new: true, upsert: true, runValidators: true });
-  res.json(settings);
+  res.json(serializeSettings(settings));
 };
